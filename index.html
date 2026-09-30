@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <link rel="icon" type="image/png" href="favicon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca de Bases de Dados para Vigilância Socioassistencial</title>
@@ -462,6 +463,7 @@
       { name: "Observatório Direito Socioambiental", url: "https://observatorio.direitosocioambiental.org/" },
       { name: "Painel PowerBI Vigilância Socioassistencial", url: "https://app.powerbi.com/view?r=eyJrIjoiNWI5NWI0ODEtYmZiYy00Mjg3LTkzNWUtY2UyYjIwMDE1YWI2IiwidCI6IjNlYzkyOTY5LTVhNTEtNGYxOC04YWM5LWVmOThmYmFmYTk3OCJ9&pageName=ReportSectionb52b07ec3b5f3ac6c749" },
       { name: "Dados Abertos Ministério das Cidades", url: "https://www.gov.br/cidades/pt-br/acesso-a-informacao/dados-abertos" },
+      { name: "CEMARIS - Controle e Monitoramento", url: "https://cemaris.sps.ce.gov.br/login", tag: "somente CE" },
       { name: "PMAS - Plano Municipal de Assistência Social (somente SP)", url: "http://www.pmas.sp.gov.br", tag: "somente SP" },
       { name: "VivaLeite - Sistema de Gestão (somente SP)", url: "https://pan.vivaleite.sp.gov.br/piloto/login.php", tag: "somente SP" },
       { name: "Plataforma Inclua IPEA (instrumento)", url: "https://inclua.ipea.gov.br/", tag: "instrumento" },
@@ -487,6 +489,8 @@
         let tagHtml = "";
         if (site.tag === "somente SP") {
           tagHtml = `<span class="badge badge-sp">(somente SP)</span>`;
+        } else if (site.tag === "somente CE") {
+          tagHtml = `<span class="badge badge-sp">(somente CE)</span>`;
         } else if (site.tag === "instrumento") {
           tagHtml = `<span class="badge badge-inst">(instrumento)</span>`;
         }

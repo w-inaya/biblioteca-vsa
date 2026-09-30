@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca de Bases de Dados para Vigilância Socioassistencial</title>
+  <style>
+    /* RESET E ESTILOS SEM ANIMAÇÕES PARA DESEMPENHO MÁXIMO */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      animation: none !important;
+      transition: none !important;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* BARRA LATERAL (SIDEBAR) */
+    #sidebar {
+      width: 320px;
+      background-color: #0f172a;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #0e7490;
+      flex-shrink: 0;
+    }
+    #sidebar.collapsed {
+      width: 50px;
+    }
+    .sidebar-header {
+      padding: 12px;
+      background-color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #0e7490;
+    }
+    .sidebar-header h2 {
+      font-size: 14px;
+      color: #22b8cf;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #sidebar.collapsed .sidebar-header h2,
+    #sidebar.collapsed .search-box,
+    #sidebar.collapsed .menu-list,
+    #sidebar.collapsed .admin-btn-text {
+      display: none;
+    }
+    .toggle-btn {
+      background: #0e7490;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+    .toggle-btn:hover {
+      background: #22b8cf;
+      color: #0f172a;
+    }
+    .search-box {
+      padding: 8px;
+      background: #1e293b;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #0e7490;
+      border-radius: 4px;
+      background: #0f172a;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    /* LISTA DO MENU */
+    .menu-container {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .menu-list {
+      list-style: none;
+    }
+    .menu-item {
+      border-bottom: 1px solid #1e293b;
+    }
+    .menu-item button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 14px;
+      background: transparent;
+      color: #e2e8f0;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1.3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-item button:hover, .menu-item button.active {
+      background-color: #0e7490;
+      color: #ffffff;
+      font-weight: bold;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+      white-space: nowrap;
+    }
+    .badge-sp { background: #d97706; color: white; }
+    .badge-inst { background: #059669; color: white; }
+
+    .sidebar-footer {
+      padding: 10px;
+      background-color: #1e293b;
+      border-top: 1px solid #0e7490;
+    }
+    .admin-btn {
+      width: 100%;
+      background: #334155;
+      color: #22b8cf;
+      border: 1px solid #0e7490;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .admin-btn:hover {
+      background: #0e7490;
+      color: white;
+    }
+
+    /* ÁREA PRINCIPAL DE CONTEÚDO */
+    #main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .top-bar {
+      height: 55px;
+      background-color: #0f172a;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      border-bottom: 3px solid #22b8cf;
+    }
+    .top-bar-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #22b8cf;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+    .open-external-btn {
+      background-color: #22b8cf;
+      color: #0f172a;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .open-external-btn:hover {
+      background-color: #67e8f9;
+    }
+
+    /* PÁGINA INICIAL / BOAS-VINDAS */
+    .home-view {
+      padding: 40px 20px;
+      overflow-y: auto;
+      flex: 1;
+      background-color: #f8fafc;
+      background-image: linear-gradient(rgba(248, 250, 252, 0.92), rgba(248, 250, 252, 0.92));
+    }
+    .home-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto 30px auto;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #cbd5e1;
+    }
+    .home-title {
+      font-size: 26px;
+      color: #0f172a;
+    }
+    .suas-logo {
+      height: 70px;
+      width: auto;
+    }
+    .vsa-banner {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-left: 6px solid #22b8cf;
+      padding: 25px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .vsa-banner p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #334155;
+    }
+    .info-cards {
+      max-width: 1000px;
+      margin: 30px auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    .card h3 {
+      color: #0e7490;
+      margin-bottom: 10px;
+    }
+
+    /* CONTAINER DO IFRAME DE NAVEGAÇÃO */
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100vh - 55px);
+      border: none;
+      display: none;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* MODAL ADMINISTRATIVO */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 { margin-bottom: 15px; color: #0f172a; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; margin-bottom: 4px; font-weight: bold; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-submit { background: #059669; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+    .btn-close { background: #64748b; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA LATERAL FIXA E RECOLHÍVEL -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <h2 title="Bases de Dados VSA">Bases de Dados VSA</h2>
+      <button class="toggle-btn" onclick="toggleSidebar()" id="toggle-icon">◀</button>
+    </div>
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="🔍 Buscar site..." onkeyup="filterMenu()">
+    </div>
+    <div class="menu-container">
+      <ul class="menu-list" id="menu-list">
+        <!-- Itens inseridos dinamicamente pelo JavaScript -->
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <button class="admin-btn" onclick="openAdminLogin()">
+        ⚙️ <span class="admin-btn-text">Gerenciar Sites</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main id="main-content">
+    <!-- BARRA SUPERIOR -->
+    <header class="top-bar">
+      <div class="top-bar-title" id="top-bar-title">Biblioteca de Bases de Dados para Vigilância Socioassistencial</div>
+      <a href="#" target="_blank" id="external-link-btn" class="open-external-btn" style="display: none;">
+        ↗ Abrir link original em outra aba
+      </a>
+    </header>
+
+    <!-- PÁGINA INICIAL / BOAS-VINDAS -->
+    <section id="home-view" class="home-view">
+      <div class="home-header">
+        <div>
+          <h1 class="home-title">Biblioteca de Bases de Dados</h1>
+          <p style="color: #0e7490; font-weight: bold; margin-top: 5px;">Vigilância Socioassistencial</p>
+        </div>
+        <!-- LOGOTIPO SUAS -->
+        <svg class="suas-logo" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="120" rx="8" fill="#0f172a"/>
+          <text x="20" y="70" font-family="Arial, sans-serif" font-weight="900" font-size="48" fill="#22b8cf">SUAS</text>
+          <text x="20" y="95" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" font-weight="bold">SISTEMA ÚNICO DE ASSISTÊNCIA SOCIAL</text>
+          <circle cx="250" cy="45" r="20" fill="#0e7490"/>
+          <path d="M240 45 L260 45 M250 35 L250 55" stroke="#ffffff" stroke-width="4"/>
+        </svg>
+      </div>
+
+      <div class="vsa-banner">
+        <p>
+          Este site é uma criação pessoal de uma profissional da Vigilância Socioassistencial para facilitar a busca de alguns dados para produção de informações, sendo que há sites que precisam de perfil autorizado para acesso com login e senha e outros sites são todos de dados abertos.
+        </p>
+      </div>
+
+      <div class="info-cards">
+        <div class="card">
+          <h3>🔒 Acesso Restrito</h3>
+          <p style="font-size: 14px; color: #475569;">
+            Sistemas que exigem credenciais institucionais prévias (ex: CadSUAS, SAA, Prontuário SUAS, SISC e SIGPBF).
+          </p>
+        </div>
+        <div class="card">
+          <h3>🌐 Dados Abertos</h3>
+          <p style="font-size: 14px; color: #475569;">
+            Portais públicos para consultas de indicadores socioeconômicos e demográficos (ex: IBGE, IPEA, DATASUS, CECAD e Atlas Brasil).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAVEGADOR INCORPORADO (IFRAME) -->
+    <div id="iframe-container" class="iframe-container">
+      <iframe id="content-frame" src="about:blank" title="Navegação do site"></iframe>
+    </div>
+  </main>
+
+  <!-- MODAL DE ATUALIZAÇÃO E LOGIN DA ADMINISTRADORA -->
+  <div id="admin-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="modal-title">Área Administrativa - Gerenciar Links</h3>
+      
+      <div id="login-form">
+        <div class="form-group">
+          <label>Senha de Acesso:</label>
+          <input type="password" id="admin-pass" placeholder="Digite a senha de atualização">
+        </div>
+        <div class="btn-group">
+          <button class="btn-submit" onclick="verifyPassword()">Entrar</button>
+          <button class="btn-close" onclick="closeAdminModal()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="admin-panel" style="display: none;">
+        <h4>Adicionar Novo Link</h4>
+        <div class="form-group">
+          <label>Nome do Site:</label>
+          <input type="text" id="new-name" placeholder="Ex: Portal MDS">
+        </div>
+        <div class="form-group">
+          <label>URL Completa:</label>
+          <input type="url" id="new-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>Categoria/Tag Especial:</label>
+          <select id="new-tag">
+            <option value="">Nenhuma</option>
+            <option value="somente SP">somente SP</option>
+            <option value="instrumento">instrumento</option>
+          </select>
+        </div>
+        <div class="btn-group">
+          <button class="btn-submit" onclick="addNewSite()">Salvar Site</button>
+          <button class="btn-submit" style="background:#0284c7;" onclick="exportDataJSON()">Exportar Backup JSON</button>
+          <button class="btn-close" onclick="closeAdminModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // BASE DE DADOS COMPLETA COM OS 53 SITES MAPEADOS
+    const initialSites = [
+      { name: "MonitoraSUAS", url: "https://redesuas.mds.gov.br/monitorasuas/" },
+      { name: "Relatórios de Informação Social (SAGICAD)", url: "https://aplicacoes.cidadania.gov.br/ri/ri/relatorios/cidadania/" },
+      { name: "Dados e Ferramentas Informacionais (SAGICAD)", url: "https://www.gov.br/mds/pt-br/orgaos/SAGICAD/dados-e-ferramentas-informacionais" },
+      { name: "Mapa Social (MDS)", url: "https://mapa-social.mds.gov.br/" },
+      { name: "AdaptaBrasil - Painel Cidades (MCTI)", url: "https://painelcidades.adaptabrasil.mcti.gov.br/" },
+      { name: "GeoREDUS - Rede Urbana Sustentável", url: "https://www.redus.org.br/georedus?v=v0" },
+      { name: "Prontuário SUAS", url: "https://aplicacoes.mds.gov.br/prontuario/" },
+      { name: "SAA - Autenticação e Autorização (MDS)", url: "https://aplicacoes.mds.gov.br/saa-web/login.action" },
+      { name: "Atendimento SAGI / SSO", url: "https://aplicacoes.mds.gov.br/sagi/atendimento/sso/" },
+      { name: "Portal Cadastro Único (Dataprev)", url: "https://cadunico.dataprev.gov.br/portal/" },
+      { name: "CadSUAS - Consulta Externa", url: "https://aplicacoes.mds.gov.br/cadsuas/visualizarConsultaExterna.html" },
+      { name: "Relatórios PBF e CadÚnico", url: "https://aplicacoes.cidadania.gov.br/ri/pbfcad/index.html" },
+      { name: "Observatório do Cadastro Único", url: "https://paineis.mds.gov.br/public/extensions/observatorio-do-cadastro-unico/index.html#introducao" },
+      { name: "Observatório do Censo SUAS 2024", url: "https://paineis.mds.gov.br/public/extensions/observatorio-do-censo-suas-2024/index.html" },
+      { name: "Fundação Seade Municípios", url: "https://municipios.seade.gov.br/" },
+      { name: "CECAD - Tabulador do Cadastro Único", url: "https://cecad.cidadania.gov.br/tab_cad.php" },
+      { name: "TabNet DATASUS - Violência Doméstica", url: "https://tabnet.datasus.gov.br/cgi/deftohtm.exe?sinannet/cnv/violebr.def" },
+      { name: "SIGPBF - Gestão Bolsa Família", url: "https://www.mds.gov.br/mds-sigpbf-web/" },
+      { name: "Consulta Benefícios Sociais (Caixa)", url: "https://www.beneficiossociais.caixa.gov.br/" },
+      { name: "VIS Data Explorer", url: "https://aplicacoes.cidadania.gov.br/vis/data3/data-explorer.php" },
+      { name: "MDS Monitora", url: "https://mds.gov.br/monitora/" },
+      { name: "SISC - Serviço de Convivência", url: "https://aplicacoes.mds.gov.br/sisc/auth/index.php#" },
+      { name: "Primeira Infância em Dados", url: "https://primeirainfanciaemdados.org.br/" },
+      { name: "SUASWeb / Gestão SUAS", url: "https://aplicacoes.mds.gov.br/suaswebcons/restrito/xhtml/inicial.jsf" },
+      { name: "IPS Brasil - Índice de Progresso Social", url: "https://ipsbrasil.org.br/" },
+      { name: "CidNum - Cidadania em Números", url: "https://aplicacoes.cidadania.gov.br/cidnum" },
+      { name: "Relatório APS - Atenção Primária à Saúde", url: "https://relatorioaps.saude.gov.br/" },
+      { name: "SISVAN - Vigilância Alimentar e Nutricional", url: "https://sisaps.saude.gov.br/sisvan/relatoriopublico/index" },
+      { name: "DATASUS TabNet - Violência Interpessoal", url: "https://tabnet.datasus.gov.br/cgi/deftohtm.exe?sinannet/cnv/violebr.def" },
+      { name: "Portal DATASUS", url: "https://www.datasus.gov.br" },
+      { name: "Dados Abertos Disque 100 (MDHC)", url: "https://www.gov.br/mdh/pt-br/acesso-a-informacao/dados-abertos/disque100" },
+      { name: "PlanificaSUS - Biblioteca Saúde Mental", url: "https://planificasus.com.br/saudemental/biblioteca.php?idBibliotecaCategoria=248" },
+      { name: "Atlas da Violência (IPEA)", url: "https://www.ipea.gov.br/atlasviolencia/posts/publicacoes/" },
+      { name: "Portal IBGE", url: "https://www.ibge.gov.br/pt/inicio.html" },
+      { name: "SIDRA IBGE - Banco de Dados Agregados", url: "https://sidra.ibge.gov.br/acervo" },
+      { name: "PNAD Contínua (IBGE)", url: "https://www.ibge.gov.br/estatisticas/sociais/trabalho/9171-pesquisa-nacional-por-amostra-de-domicilios-continua-mensal.html" },
+      { name: "Censo Escolar - Resultados (INEP)", url: "https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/resultados" },
+      { name: "Fórum Brasileiro de Segurança Pública", url: "https://forumseguranca.org.br/" },
+      { name: "INDE - Dados Espaciais", url: "https://inde.gov.br/" },
+      { name: "SmartLab - Trabalho Decente", url: "https://smartlabbr.org/trabalhodecente/localidade/3520442?dimensao=socialeconomico" },
+      { name: "Painel de Dados ONDH (MDHC)", url: "https://www.gov.br/mdh/pt-br/ondh/painel-de-dados" },
+      { name: "Atlas do Desenvolvimento Humano no Brasil", url: "http://www.atlasbrasil.org.br/" },
+      { name: "IVS - Índice de Vulnerabilidade Social (IPEA)", url: "https://ivs.ipea.gov.br/#/" },
+      { name: "Territórios Tradicionais (MPF)", url: "https://territoriostradicionais.mpf.mp.br/#/inicial" },
+      { name: "Observatório Direito Socioambiental", url: "https://observatorio.direitosocioambiental.org/" },
+      { name: "Painel PowerBI Vigilância Socioassistencial", url: "https://app.powerbi.com/view?r=eyJrIjoiNWI5NWI0ODEtYmZiYy00Mjg3LTkzNWUtY2UyYjIwMDE1YWI2IiwidCI6IjNlYzkyOTY5LTVhNTEtNGYxOC04YWM5LWVmOThmYmFmYTk3OCJ9&pageName=ReportSectionb52b07ec3b5f3ac6c749" },
+      { name: "Dados Abertos Ministério das Cidades", url: "https://www.gov.br/cidades/pt-br/acesso-a-informacao/dados-abertos" },
+      { name: "PMAS - Plano Municipal de Assistência Social (somente SP)", url: "http://www.pmas.sp.gov.br", tag: "somente SP" },
+      { name: "VivaLeite - Sistema de Gestão (somente SP)", url: "https://pan.vivaleite.sp.gov.br/piloto/login.php", tag: "somente SP" },
+      { name: "Plataforma Inclua IPEA (instrumento)", url: "https://inclua.ipea.gov.br/", tag: "instrumento" },
+      { name: "Design Canva (instrumento)", url: "https://www.canva.com/design/DAGUHZzWiDM/qvHys-PMNvhxsTRdTgCcsg/edit", tag: "instrumento" },
+      { name: "Orientações Técnicas SNAS (instrumento)", url: "https://aplicacoes.mds.gov.br/snas/regulacao/visualizar.php?codigo=6886", tag: "instrumento" },
+      { name: "AdaptaSUAS (instrumento)", url: "https://www.adaptasuas.org.br/", tag: "instrumento" }
+    ];
+
+    // CARREGAR LISTA DE SITES SALVA OU INICIAL
+    let sitesList = JSON.parse(localStorage.getItem("vsa_sites_db")) || initialSites;
+
+    // RENDERIZAR MENU LATERAL
+    function renderMenu(filter = "") {
+      const menuList = document.getElementById("menu-list");
+      menuList.innerHTML = "";
+
+      sitesList.forEach((site, index) => {
+        if (filter && !site.name.toLowerCase().includes(filter.toLowerCase())) return;
+
+        const li = document.createElement("li");
+        li.className = "menu-item";
+        
+        let tagHtml = "";
+        if (site.tag === "somente SP") {
+          tagHtml = `<span class="badge badge-sp">(somente SP)</span>`;
+        } else if (site.tag === "instrumento") {
+          tagHtml = `<span class="badge badge-inst">(instrumento)</span>`;
+        }
+
+        li.innerHTML = `
+          <button onclick="loadSite('${site.url}', '${site.name.replace(/'/g, "\\'")}', this)">
+            <span>${site.name}</span>
+            ${tagHtml}
+          </button>
+        `;
+        menuList.appendChild(li);
+      });
+    }
+
+    // CARREGAR SITE SELECIONADO NA TELA
+    function loadSite(url, name, buttonEl) {
+      document.getElementById("home-view").style.display = "none";
+      const iframeContainer = document.getElementById("iframe-container");
+      const iframe = document.getElementById("content-frame");
+      const topTitle = document.getElementById("top-bar-title");
+      const externalBtn = document.getElementById("external-link-btn");
+
+      iframeContainer.style.display = "block";
+      iframe.src = url;
+      topTitle.innerText = name;
+      externalBtn.href = url;
+      externalBtn.style.display = "inline-flex";
+
+      // ATUALIZAR ITEM ATIVO NO MENU
+      document.querySelectorAll(".menu-item button").forEach(btn => btn.classList.remove("active"));
+      if (buttonEl) buttonEl.classList.add("active");
+    }
+
+    // ALTERNAR MENU RECOLHÍVEL (EXPANDIR / RECOLHER)
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const toggleIcon = document.getElementById("toggle-icon");
+      sidebar.classList.toggle("collapsed");
+      toggleIcon.innerText = sidebar.classList.contains("collapsed") ? "▶" : "◀";
+    }
+
+    // FILTRAR MENU POR TEXTO NA BUSCA
+    function filterMenu() {
+      const query = document.getElementById("search-input").value;
+      renderMenu(query);
+    }
+
+    // ÁREA ADMINISTRATIVA E LOGIN
+    function openAdminLogin() {
+      document.getElementById("admin-modal").style.display = "flex";
+      document.getElementById("login-form").style.display = "block";
+      document.getElementById("admin-panel").style.display = "none";
+      document.getElementById("admin-pass").value = "";
+    }
+
+    function closeAdminModal() {
+      document.getElementById("admin-modal").style.display = "none";
+    }
+
+    function verifyPassword() {
+      const pass = document.getElementById("admin-pass").value;
+      // Senha padrão de atualização: vsa2026
+      if (pass === "vsa2026") {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+      } else {
+        alert("Senha incorreta!");
+      }
+    }
+
+    function addNewSite() {
+      const name = document.getElementById("new-name").value;
+      const url = document.getElementById("new-url").value;
+      const tag = document.getElementById("new-tag").value;
+
+      if (!name || !url) {
+        alert("Por favor, preencha o nome e a URL do site.");
+        return;
+      }
+
+      const newSite = { name, url };
+      if (tag) newSite.tag = tag;
+
+      sitesList.push(newSite);
+      localStorage.setItem("vsa_sites_db", JSON.stringify(sitesList));
+      renderMenu();
+      alert("Novo site adicionado com sucesso!");
+      
+      document.getElementById("new-name").value = "";
+      document.getElementById("new-url").value = "";
+      closeAdminModal();
+    }
+
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sitesList, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "vsa_sites_backup.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // INICIALIZAR SITE
+    renderMenu();
+  </script>
+</body>
+</html>

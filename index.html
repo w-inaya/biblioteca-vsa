@@ -7,6 +7,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca de Bases de Dados para Vigilância Socioassistencial</title>
   <style>
+   /* Estilo do Botão da Página Inicial */
+#btn-home {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #2563eb; /* Azul vibrante para destacar */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+#btn-home:hover {
+  background-color: #1d4ed8; /* Azul um pouco mais escuro ao passar o mouse */
+  transform: translateY(-1px);
+}
     /* RESET E ESTILOS SEM ANIMAÇÕES PARA DESEMPENHO MÁXIMO */
     * {
       box-sizing: border-box;
@@ -295,6 +318,10 @@
 
   <!-- BARRA LATERAL FIXA E RECOLHÍVEL -->
   <aside id="sidebar">
+   <!-- Botão destacado da Página Inicial -->
+<button id="btn-home" onclick="mostrarInicio()">
+  🏠 Página Inicial
+</button>
     <div class="sidebar-header">
       <h2 title="Bases de Dados VSA">Bases de Dados VSA</h2>
       <button class="toggle-btn" onclick="toggleSidebar()" id="toggle-icon">◀</button>
@@ -415,6 +442,24 @@
   </div>
 
   <script>
+   function mostrarInicio() {
+  // Limpa o campo de pesquisa caso algo tenha sido digitado
+  const searchInput = document.getElementById("search");
+  if (searchInput) {
+    searchInput.value = "";
+  }
+  
+  // Recarrega/renderiza a lista inicial de sites
+  if (typeof renderMenu === "function") {
+    renderMenu();
+  }
+
+  // Se houver área principal/iframe, volta para a tela inicial
+  const mainContent = document.getElementById("main-content");
+  if (mainContent) {
+    mainContent.scrollTop = 0;
+  }
+}
     // BASE DE DADOS COMPLETA COM OS 53 SITES MAPEADOS
     const initialSites = [
       { name: "MonitoraSUAS", url: "https://redesuas.mds.gov.br/monitorasuas/" },
